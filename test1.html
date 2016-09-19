@@ -1,0 +1,150 @@
+<html>
+<head>
+</head>
+<body>
+<script type="text/javascript" src="Grade_Class.js"></script>
+<script src="jquery.js"></script>
+<script type="text/javascript">
+var your_url = 'https://www.alunoonline.uerj.br/requisicaoaluno/requisicao.php?requisicao=HorariosTurmasDisciplina&disciplinas[0]=00854';//00508 02198
+var el = document.createElement( 'html' );
+
+</script>
+
+
+<script type="text/javascript">
+// jquery.xdomainajax.js  ------ from padolsey
+
+jQuery.ajax = (function(_ajax){
+
+    var protocol = location.protocol,
+        hostname = location.hostname,
+        exRegex = RegExp(protocol + '//' + hostname),
+        YQL = 'http' + (/^https/.test(protocol)?'s':'') + '://query.yahooapis.com/v1/public/yql?callback=?',
+        query = 'select * from html where url="{URL}" and xpath="*"';
+
+    function isExternal(url) {
+        return !exRegex.test(url) && /:\/\//.test(url);
+    }
+
+    return function(o) {
+
+        var url = o.url;
+
+        if ( /get/i.test(o.type) && !/json/i.test(o.dataType) && isExternal(url) ) {
+
+            // Manipulate options so that JSONP-x request is made to YQL
+
+            o.url = YQL;
+            o.dataType = 'json';
+
+            o.data = {
+                q: query.replace(
+                    '{URL}',
+                    url + (o.data ?
+                        (/\?/.test(url) ? '&' : '?') + jQuery.param(o.data)
+                    : '')
+                ),
+                format: 'xml'
+            };
+
+            // Since it's a JSONP request
+            // complete === success
+            if (!o.success && o.complete) {
+                o.success = o.complete;
+                delete o.complete;
+            }
+
+            o.success = (function(_success){
+                return function(data) {
+
+                    if (_success) {
+                        // Fake XHR callback.
+                        _success.call(this, {
+                            responseText: data.results[0]
+                                // YQL screws with <script>s
+                                // Get rid of them
+                                .replace(/<script[^>]+?\/>|<script(.|\s)*?\/script>/gi, '')
+                        }, 'success');
+                    }
+
+                };
+            })(o.success);
+
+        }
+
+        return _ajax.apply(this, arguments);
+
+    };
+
+})(jQuery.ajax);
+
+
+
+$.ajax({
+    url: your_url,
+    type: 'GET',
+    success: function(res) {
+        var text = res.responseText;
+        // then you can manipulate your text as you wish
+        //console.log(text);
+
+		el.innerHTML = text;
+
+		 // Live NodeList of your anchor eements
+
+		 //INÍCIO DO CONTEÚDO DA PÁGINA
+		 var pagina = el.getElementsByTagName( 'div' )[1];
+
+		 //Todos os <tr> a seguir contém informações de cada turma, exceto o primeiro que é o cabeçalho com o nome da disciplina
+		 var turmas = pagina.childNodes[2].childNodes[0].childNodes;
+		console.log(turmas[1]);
+
+		console.log(turmas[1].getElementsByTagName('div')[5].innerText);
+		console.log(turmas[1].getElementsByTagName('div')[13].innerText);
+		console.log(turmas[1].getElementsByTagName('div')[14].innerText);
+		//console.log(turmas[1].getElementsByTagName('div'));
+
+		console.log('Turmas filtrado');
+		var turmasFiltrado = turmas[1].getElementsByTagName('div')[3];
+		console.log(turmasFiltrado);
+		console.log(turmasFiltrado.childNodes);
+		console.log(turmasFiltrado.childNodes[1].innerText); //NºTurma
+		console.log(turmasFiltrado.childNodes[9].innerText); //Tempos
+		console.log(turmasFiltrado.childNodes[17].innerText);//Professores
+		//console.log(turmasFiltrado.getElementsByTagName('div')[0].innerText);
+		//console.log(turmasFiltrado.getElementsByTagName('div')[8].innerText);
+		//console.log(turmasFiltrado.getElementsByTagName('div')[16].innerText);
+
+		console.log('Turmas');
+		//console.log(turmas);
+
+
+		/*
+		for (i = 0; i < 5; i++) {
+    		text += "The number is " + i + "<br>";
+		}
+		*/
+		//página
+		// série de <tr> relevantes
+		//var turmasTR = pagina.childNodes;
+		//console.log(turmasTR);
+		//console.log(pagina.childNodes[2].childNodes[0].childNodes);
+		console.log('grade');
+		var grade = new Grade(turmas[0].getElementsByTagName('div')[0].innerText);//turmas[0].getElementsByTagName('div')[0].innerText
+		console.log(grade);
+		grade.setTurma(1);
+		console.log(grade.getTurma());
+
+        //Teste Final
+        console.log(turmas.length);
+
+
+
+    }
+});
+
+</script>
+</body>
+</html>
+
+
